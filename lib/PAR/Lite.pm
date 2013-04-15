@@ -13,7 +13,19 @@ PAR::Lite - The great new PAR::Lite!
 Version 0.01
 
 =cut
-
+our $Zip_Module;
+if (try_load('Compress::Raw::Zlib')) {
+    $Zip_Module = 'Compress::Raw::Zlib';
+    try_load('PAR');
+}
+elsif (try_load('Compress::Zlib::Perl')) {
+    $Zip_Module = 'Compress::Zlib::Perl';
+    try_load('PAR::Lite::PP');
+}
+else {
+    die "Whoops: no Zlib library installed\n";
+}
+warn "Using $Zip_Module\n";
 our $VERSION = '0.01';
 
 
@@ -39,7 +51,10 @@ if you don't export anything, such as for a purely object-oriented module.
 
 =cut
 
-sub function1 {
+sub try_load {
+    my $mod = shift;
+    eval("use $mod");
+    return $@ ? 0 : 1;
 }
 
 =head2 function2
